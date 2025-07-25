@@ -1,0 +1,79 @@
+{{ block "index" . }}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PomoBro</title>
+    <script src="/js/htmx.js"></script>
+    <script src="/js/htmx-sse-ext.js"></script>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <h1>PomoBro</h1>
+    <div hx-ext="sse" sse-connect="/events">
+        <div id="timer" sse-swap="TimeTick,SyncTimer" hx-swap="innerHTML">
+            {{ template "timer" . }}
+        </div>
+        <div id="controls" sse-swap="PomodoroStarted,PomodoroPaused,PomodoroResumed,PomodoroReset,SyncControls" hx-swap="innerHTML">
+            {{ template "controls" . }}
+        </div>
+    </div>
+
+    <!-- <div id="debug" hx-get="/debug" hx-trigger="every 1s" hx-swap="innerHTML">
+        {{ template "debug" . }}
+    </div> -->
+    <script defer>
+        document.body.addEventListener('htmx:sseOpen', function (e) {
+            // do something before the event data is swapped in
+            console.log('htmx:sseOpen', e);
+        })
+        document.body.addEventListener('htmx:sseError', function (e) {
+            // do something before the event data is swapped in
+            console.log('htmx:sseError', e);
+        })
+        document.body.addEventListener('htmx:sseBeforeMessage', function (e) {
+            // do something before the event data is swapped in
+            console.log('htmx:sseBeforeMessage', e);
+        })
+        document.body.addEventListener('htmx:sseClose', function (e) {
+            // do something before the event data is swapped in
+            console.log('htmx:sseMessage', e);
+        })
+        document.body.addEventListener('htmx:sseClose', function (e) {
+            // do something before the event data is swapped in
+            console.log('htmx:sseOpen', e);
+        })
+    </script>
+</body>
+
+</html>
+{{ end }}
+
+{{ block "timer" . }}
+    {{ if .CurrentPomo}}
+        {{ .CurrentPomo.TimeLeft }}
+    {{ else }}
+        {{ .PrintPreferredDuration }}
+    {{ end }}
+{{ end }}
+
+{{ block "controls" . }}
+{{ if .Running }}
+<button hx-post="/start-pause" hx-swap="none">Pause</button>
+{{ else }}
+<button hx-post="/start-pause" hx-swap="none">Start</button>
+{{ end }}
+<button hx-post="/reset" hx-swap="none">Reset</button>
+{{ end }}
+
+{{ block "debug" . }}
+{{ printf "%#v" . }}
+
+<br>
+CurrentPomo: {{ printf "%#v" .CurrentPomo}}
+<br>
+Connected clients: {{ len .Clients}}
+{{ end }}
