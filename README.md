@@ -43,4 +43,4 @@ cd PomoChan
 go run .
 ```
 
-Then open [http://localhost:1323](http://localhost:1323) in your browser to start focusing!
+Then open [http://localhost:1323](http://localhost:1323)
