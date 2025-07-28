@@ -41,3 +41,6 @@ Not anymore. With Flow Mode and the option to disable automatic breaks, you stay
 git clone https://github.com/DanilShapilov/PomoChan
 cd PomoChan
 go run .
+```
+
+Then open [http://localhost:1323](http://localhost:1323) in your browser to start focusing!
