@@ -1,4 +1,86 @@
 body {
     background-color: #111;
     color: #ccc;
+    font-family: sans-serif;
+}
+
+#main {
+    background-image: url("/images/PomoChan.png");
+    background-size: contain;
+    background-position: top;
+    background-repeat: repeat-y;
+    max-width: calc(1024px /2);
+    min-width: calc(1024px /2);
+    min-height: calc(1536px /2);
+    margin: 0 auto;
+}
+#main h1 {
+    text-align: right;
+    font-size: 2rem;
+    font-weight: 100;
+    color: #333;
+    margin-right: .3rem;
+}
+#main .demoDescription {
+    font-size: .8rem;
+    color: #555;
+    margin-bottom: 1rem;
+    text-align: right;
+    margin-right: .3rem;
+    text-shadow: rgb(255 255 255 / 50%) 1px 1px 0;
+}
+#main nav {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    margin-right: .3rem;
+    gap: 1rem;
+}
+#main .dynamicThing{
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: start;
+    gap: 1rem;
+    margin: 200px 1rem 0 1rem;
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.3); /* Optional: semi-transparent background for better effect */
+    backdrop-filter: blur(15px); /* Adjust the blur radius as needed */
+    -webkit-backdrop-filter: blur(15px); /* For Safari compatibility */
+    padding: 20px; /* Add some padding for content */
+    border-radius: 8px; /* Optional: rounded corners */
+}
+
+.modeBtn {
+    cursor: pointer;
+    border-radius: 10px;
+    background: transparent;
+    transition: all .3s;
+}
+.durationBtn{
+    border: 2px solid #999;
+    color: #999;
+}
+.durationBtn.active {
+    border: 2px solid crimson;
+    color: crimson;
+}
+.durationBtn:disabled{
+    border: 2px solid #333;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.flowBtn,
+.autoBreakBtn {
+    border: 2px solid #333;
+    color: #999;
+}
+.flowBtn.active{
+    border-color: cornflowerblue;
+    color: cornflowerblue;
+}
+.autoBreakBtn.active{
+    border-color: indianred;
+    color: indianred;
 }

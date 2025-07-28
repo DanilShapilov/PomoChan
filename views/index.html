@@ -5,27 +5,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PomoBro</title>
+    <title>PomoChan</title>
     <script src="/js/htmx.js"></script>
     <script src="/js/htmx-sse-ext.js"></script>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
-    <h1>PomoBro</h1>
-    <div hx-ext="sse" sse-connect="/events">
-        <div id="timer" sse-swap="TimeTick,SyncTimer" hx-swap="innerHTML">
-            {{ template "timer" . }}
-        </div>
-        <div id="controls" sse-swap="PomodoroStarted,PomodoroPaused,PomodoroResumed,PomodoroReset,SyncControls" hx-swap="innerHTML">
-            {{ template "controls" . }}
+    <div id="main">
+        <h1>PomoChan</h1>
+        <p class="demoDescription">For demonstration 1 second = 1 minute</p>
+        <nav><a class="changePage" href="/">Timer</a><a class="changePage" href="/stats">Stats</a></nav>
+        <div class="dynamicThing" hx-ext="sse" sse-connect="/events">
+            <div id="activities" sse-swap="SyncActivities">
+                {{ template "activities" . }}
+            </div>
+            <div id="mode" sse-swap="SyncMode">
+                {{ template "mode" .}}
+            </div>
+            <div id="timer" sse-swap="SyncTimer" hx-swap="innerHTML">
+                {{ template "timer" . }}
+            </div>
+            <div id="controls" sse-swap="PomoStarted,PomoPaused,PomoResumed,PomoReset,PomoSaved,SyncControls" hx-swap="innerHTML">
+                {{ template "controls" . }}
+            </div>
+            <div id="tracked" sse-swap="SyncTracked" hx-swap="innerHTML">
+                {{ template "tracked" . }}
+            </div>
         </div>
     </div>
 
+    <!-- <hr> -->
+    <!-- <div id="clients" hx-get="/clients" hx-trigger="every 3s" hx-swap="innerHTML"></div> -->
     <!-- <div id="debug" hx-get="/debug" hx-trigger="every 1s" hx-swap="innerHTML">
         {{ template "debug" . }}
     </div> -->
-    <script defer>
+    <!-- <script defer>
         document.body.addEventListener('htmx:sseOpen', function (e) {
             // do something before the event data is swapped in
             console.log('htmx:sseOpen', e);
@@ -46,27 +61,89 @@
             // do something before the event data is swapped in
             console.log('htmx:sseOpen', e);
         })
-    </script>
+    </script> -->
 </body>
 
 </html>
 {{ end }}
 
+{{ block "mode" .}}
+{{/* ids for css transition to work */}}
+    <button id="modeFlow" class="modeBtn flowBtn {{ if .FlowMode }}active{{end}}" hx-post="/toggle-flow">Flow</button>
+    <button id="modeAutoBreaks" class="modeBtn autoBreakBtn {{ if .AutoBreak }}active{{end}}" hx-post="/toggle-auto-break">Auto Break</button>
+    <button id="modeDur25" class="modeBtn durationBtn {{ if eq .PreferredDurationMinutes 25 }}active{{ end }}" {{ if .FlowMode }}disabled{{end}} name="duration" hx-post="/set-duration" value="25">25</button>
+    <button id="modeDur50" class="modeBtn durationBtn {{ if eq .PreferredDurationMinutes 50 }}active{{ end }}" {{ if .FlowMode }}disabled{{end}} name="duration" hx-post="/set-duration" value="50">50</button>
+    <button id="modeDur75" class="modeBtn durationBtn {{ if eq .PreferredDurationMinutes 75 }}active{{ end }}" {{ if .FlowMode }}disabled{{end}} name="duration" hx-post="/set-duration" value="75">75</button>
+{{ end }}
+
+{{ block "activities" . }}
+<label for="activity">Activity:</label>
+<select id="activity" name="activity" hx-post="/activity" hx-swap="none">
+    {{ range .Activities }}
+        <option value="{{ .Id }}" {{ if eq $.CurrentActivity.Id .Id }}selected{{ end }}>{{ .Name }}</option>
+    {{ end }}
+</select>
+{{ end }}
+
 {{ block "timer" . }}
     {{ if .CurrentPomo}}
-        {{ .CurrentPomo.TimeLeft }}
+        {{ if .CurrentPomo.IsBreak}}
+        <div>Break time 🎉</div>
+        {{ else }}
+        <div>Focus time 🍅</div>
+        {{ end }}
+        {{ .CurrentPomo.PrintTime }}: {{ .CurrentPomo.Activity.Name}}
     {{ else }}
+        <div>Start new pomodoro</div>
         {{ .PrintPreferredDuration }}
     {{ end }}
 {{ end }}
 
 {{ block "controls" . }}
-{{ if .Running }}
-<button hx-post="/start-pause" hx-swap="none">Pause</button>
-{{ else }}
-<button hx-post="/start-pause" hx-swap="none">Start</button>
+    {{ if .Running }}
+        {{ if not .CurrentPomo.IsBreak}}
+            <button hx-post="/start-pause" hx-swap="none">Pause</button>
+            {{else}}
+            <button hx-post="/reset" hx-swap="none">Skip</button>
+        {{ end }}
+    {{ else if .CurrentPomo }}
+        <button hx-post="/start-pause" hx-swap="none">Resume</button>
+    {{ else }}
+        <button hx-post="/start-pause" hx-swap="none">Start</button>
+    {{ end }}
+
+    {{ if and .CurrentPomo (not .CurrentPomo.IsBreak) }}
+        <button hx-post="/reset" hx-swap="none">Reset</button>
+    {{ end }}
+    {{ if and .CurrentPomo (not .CurrentPomo.IsBreak) }}
+        <button hx-post="/save" hx-swap="none" title="Save">💾</button>
+    {{ end }}
+    
+    {{ if or (and .CurrentPomo .CurrentPomo.Completed) (and .CurrentPomo .CurrentPomo.FlowMode)}}
+        <div>
+            <button hx-post="/start-break" hx-swap="none" title="Start Break">Stark Break</button>
+        </div>
+    {{ end }}
 {{ end }}
-<button hx-post="/reset" hx-swap="none">Reset</button>
+
+{{ block "tracked" . }}
+{{if .Tracked}}
+    <h4>Tracked today:</h4>
+    <p>Daily goal: {{ .DailyGoal }}🍅</p>
+    <p>Total 🍅: {{ .PrintTotalPomos }}/{{ .DailyGoal }}</p>
+    <p>Total in time: {{ .PrintTotalTime }}</p>
+    <ul style="display: flex; flex-direction:column-reverse;">
+        {{range .Tracked }}
+        <li>
+            Time: {{.TimePassed}}
+            <br>
+            Activity: {{ .Activity.Name }}
+        </li>
+        {{end}}
+    </ul>
+{{else}}
+<h4>No pomodoros tracked today</h4>
+{{end}}
 {{ end }}
 
 {{ block "debug" . }}

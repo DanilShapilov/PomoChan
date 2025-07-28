@@ -1,4 +1,4 @@
-module pomobro
+module pomochan
 
 go 1.24.1
 

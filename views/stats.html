@@ -1,0 +1,85 @@
+{{ block "stats" . }}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PomoChan</title>
+    <script src="/js/htmx.js"></script>
+    <script src="/js/htmx-sse-ext.js"></script>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+</body>
+<h1>PomoChan</h1>
+<a class="changePage" href="/">Timer</a><a class="changePage" href="/stats">Stats</a>
+<p>Daily goal: {{ .DailyGoal }}🍅</p>
+<canvas id="pomoChart"></canvas>
+{{ range .EfficiencyStats }}
+  <h4>Efficiency (Last {{ .DaysSelected }} Days)</h4>
+  <p>Average Pomodoros: {{ printf "%.1f" .AveragePomodoros }}</p>
+  <p>Total Hours: {{ printf "%.2f" .Hours }}</p>
+  <p>Efficiency: {{ printf "%.1f" .Efficiency }}%</p>
+  {{ if gt .MissingPomodoros 0 }}
+    <p>Pomodoros left to reach 100%: {{ .MissingPomodoros }}</p>
+  {{ else }}
+    <p>You've reached or exceeded 100% efficiency!</p>
+  {{ end }}
+{{ end }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-trendline/dist/chartjs-plugin-trendline.min.js"></script>
+    <script defer>
+     const labels = {{ .DailyStats | toJson }};
+  const dates = labels.map(entry => entry.Date);
+  const pomos = labels.map(entry => entry.Pomodoros);
+
+  const ctx = document.getElementById('pomoChart').getContext('2d');
+  const pomoChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [{
+        label: 'Pomodoros per Day',
+        data: pomos,
+        borderColor: '#f87171',
+        backgroundColor: 'rgba(248, 113, 113, 0.3)',
+        tension: 0.3,
+        fill: true,
+        pointRadius: 2
+      },{
+      label: 'Pomodoros per Day',
+      data: pomos,
+      borderColor: 'rgba(75, 192, 192, 1)',
+      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      tension: 0.3,
+      fill: true,
+      trendlineLinear: {
+        style: "rgba(255,105,180,0.8)", // pinkish trendline
+        lineStyle: "dotted|solid",     // optional
+        width: 1,
+        projection: false              // optional, disables line beyond data
+      }}]
+    },
+    options: {
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${ctx.parsed.y} 🍅`
+          }
+        }
+      },
+      scales: {
+        x: { title: { display: true, text: 'Date' } },
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: 'Pomodoros' }
+        }
+      }
+    }
+  });
+    </script>
+</html>
+{{ end }}
