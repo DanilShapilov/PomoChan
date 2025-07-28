@@ -1,4 +1,5 @@
 # ⏱ PomoChan - your cute focus buddy.
+(for boot.dev hackathon, multiple users and persistance coming)  
 Not just a pomodoro timer — stay productive with flow mode, smart breaks, and insightful stats.
 
 Real-time sync pomodoro app and stats — built with Go (Echo) and HTMX (questinable choice I know)  
