@@ -13,6 +13,7 @@ body {
     min-width: calc(1024px /2);
     min-height: calc(1536px /2);
     margin: 0 auto;
+    border-radius: 8px;
 }
 #main h1 {
     text-align: right;
