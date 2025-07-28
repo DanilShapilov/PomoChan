@@ -40,4 +40,4 @@ Not anymore. With Flow Mode and the option to disable automatic breaks, you stay
 ```bash
 git clone https://github.com/DanilShapilov/PomoChan
 cd PomoChan
-go run main.go
+go run .
