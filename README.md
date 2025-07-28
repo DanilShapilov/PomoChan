@@ -26,7 +26,9 @@ Not anymore. With Flow Mode and the option to disable automatic breaks, you stay
 - ⚡ (coming) Offline-first support SPA PWA
 - 🗂 Categorize sessions by activity (e.g. Boot.dev, Japanese, etc.) (hardcoded for now)
 
-## 📷 Screenshots
+## 📷 Screenshots/Video  
+
+https://github.com/user-attachments/assets/23988b86-7cc0-4bd8-bd40-709a134d34d0
 
 ![Screenshot](images/screenshot.png)
 
